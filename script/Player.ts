@@ -124,14 +124,15 @@ export class Player {
 						//cache [new cluster] 
 						let timeStart = 0;
 						let timeEnd = -1;
+						let sourceDomain = this.source.replace(/((\/||\\)[\w-]*.m3u8)$/,'');
 
-						// console.log(this.manifest.segments);
+						// console.log(this.manifest);
 
 						if(this.clusters.length === 0) {
 
 							this.manifest.segments.map((info) => {
 								timeEnd = timeStart + info.duration;
-								this.clusters.push(new Cluster(info.uri, '', timeStart, timeEnd ));
+								this.clusters.push(new Cluster(info.uri, sourceDomain, timeStart, timeEnd ));
 								timeStart += timeEnd;
 
 							});
@@ -148,7 +149,7 @@ export class Player {
 								});
 
 								timeEnd = timeStart + info.duration;
-								this.clusters.push(new Cluster(info.uri, '', timeStart, timeEnd ));
+								this.clusters.push(new Cluster(info.uri, sourceDomain, timeStart, timeEnd ));
 								timeStart += timeEnd;
 
 							});
@@ -240,7 +241,7 @@ export class Player {
 	downloadInitCluster() {
 		let promiseArr = [];
 
-		while(this.clusters.length >= 3){
+		while(this.clusters.length > 3){
 			this.clusters.shift();
 		}
 
@@ -262,11 +263,15 @@ export class Player {
 	flushBufferQueue() {
 		if (!this.sourceBuffer.updating) {
 			let bufferQueue: Array<Cluster> = this.clusters.filter((cluster) => {
+				console.log(cluster.ready);
+				console.log(cluster.isReady());
+				console.log(cluster.getData());
 				return cluster.ready && !cluster.buffered;
 			});
 
 
 			bufferQueue.map((cluster) => {
+				log.addLog('appendBuffer~');
 				this.sourceBuffer.appendBuffer(cluster.data);
 				this.cluster.buffered = true;
 			});

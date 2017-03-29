@@ -69,6 +69,7 @@ export class Cluster {
 
 		  	this.ready = true;
 			this.readyTime = new Date().getTime();
+			console.log(1322313212);
 
 			// window.vjsBuffer.appendBuffer(bytes);
 			// if(video.currentTime<1) video.play();
@@ -80,6 +81,14 @@ export class Cluster {
 
 	}
 
+	getData() {
+		return this.data;
+	}
+
+	isReady() {
+		return this.ready;
+	}
+
 
 	// download(callback): Promise<any> {
 	download(): Promise<any> {
@@ -89,7 +98,7 @@ export class Cluster {
 
 
 		return new Promise((resolve,reject) => {
-
+			let self = this;
 			let retryCount:number = 0;
 
 			(function _getClusterData(){
@@ -108,13 +117,14 @@ export class Cluster {
 				xhr.send();
 
 				xhr.onload = (e) => {
-					if (xhr.status !== 206 && xhr.status !== 304) {
+					// if (xhr.status !== 206 && xhr.status !== 304) {
+					if (xhr.status !== 206 && xhr.status !== 304 && xhr.status !== 200) {
 						console.error("media: Unexpected status code " + xhr.status);
 						return false;
 					}
 					
-					this.pushData(new Uint8Array(xhr.response));
-					resolve(this.data);
+					self.pushData(new Uint8Array(xhr.response));
+					resolve(self.data);
 				};
 
 				xhr.ontimeout = () => {
@@ -124,7 +134,7 @@ export class Cluster {
 						reject();
 					} else {
 						retryCount++;
-						this._getClusterData();
+						_getClusterData();
 					}
 				}
 
