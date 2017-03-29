@@ -1,0 +1,32 @@
+{
+  "name": "my_hls",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "@types/jquery": "^2.0.41",
+    "@types/underscore": "^1.8.0",
+    "typescript": "^2.2.1",
+    "typings": "^2.1.0"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.1.2",
+    "jquery": "^3.2.1",
+    "m3u8-parser": "^2.1.0",
+    "mux.js": "^2.2.1",
+    "source-map-loader": "^0.2.0",
+    "underscore": "^1.8.3",
+    "webpack": "^2.3.1"
+  },
+  "scripts": {
+    "build": "webpack",
+    "tsc": "tsc",
+    "tsc:init": "tsc --init",
+    "tsc:watch": "tsc -w",
+    "typings": "typings",
+    "typings:install": "typings install",
+    "postinstall": "typings install"
+  },
+  "author": "",
+  "license": "ISC"
+}

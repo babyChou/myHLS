@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+ <section id="video-place">
+  </section>
+	<script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+    <script src="lib/m3u8-parser.js"></script>
+    <script src="lib/mux.js"></script>
+    <!-- <script src="lib/mux_2.2.1.js"></script> -->
+	
+
+	<script type="text/javascript">
+		var manifest = [
+		'#EXTM3U',
+		'#EXT-X-VERSION:3',
+		'#EXT-X-TARGETDURATION:6',
+		'#EXT-X-MEDIA-SEQUENCE:0',
+		'#EXT-X-DISCONTINUITY-SEQUENCE:0',
+		'#EXTINF:6,',
+		'0.ts',
+		'#EXTINF:6,',
+		'1.ts',
+		'#EXTINF:6,',
+		'2.ts',
+		'#EXT-X-ENDLIST'
+		].join('\n');
+
+		// manifest = [
+		// 	'#EXTM3U',
+		// 	'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=496000,RESOLUTION=398x224,CODECS="avc1.66.30,mp4a.40.2"',
+		// 	'http://s2.content.video.llnw.net/smedia/42f4e71183054396907c0dea18241568/Ai/bsvvd9OjPy7rg_anZWHc--NVUQFN2eMVmsssp1ArM/francstireurs_entrevue_ep472_seq24.mpegts/playlist-6d56fbd1a7dd863608393b9409ab8bbe23cdff3b.m3u8',
+		// 	'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=64000,RESOLUTION=398x224',
+		// 	'http://s2.content.video.llnw.net/smedia/42f4e71183054396907c0dea18241568/in/1KlF-V773LpkkBjfaKj-NcWKKkV6BiBOUD8eBj0wU/francstireurs_entrevue_ep472_seq24.mpegts/playlist-e5e542090ce13ef508a9ad2620b727edef3d23d3.m3u8',
+		// 	'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=206000,RESOLUTION=398x224,CODECS="avc1.66.30,mp4a.40.2"',
+		// 	'http://s2.content.video.llnw.net/smedia/42f4e71183054396907c0dea18241568/fs/4W1mwKzafPmRrn7fGNhVkelS4LOheMsh_A3VQjGy4/francstireurs_entrevue_ep472_seq24.mpegts/playlist-924dad5a7433412e119c01df38f21a673ba73188.m3u8',
+		// 	'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=296000,RESOLUTION=398x224,CODECS="avc1.66.30,mp4a.40.2"',
+		// 	'http://s2.content.video.llnw.net/smedia/42f4e71183054396907c0dea18241568/NU/PoGkMqAIXuomUJXNFJg6fr1tLShXUhziXKHWDh_yI/francstireurs_entrevue_ep472_seq24.mpegts/playlist-0a0268af97187c9eefde130b1d292a1ea793ed0f.m3u8',
+		// 	'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=696000,RESOLUTION=640x360,CODECS="avc1.66.30,mp4a.40.2"',
+		// 	'http://s2.content.video.llnw.net/smedia/42f4e71183054396907c0dea18241568/F4/hqD_sV7tLdJYodB5w0-I2FeHU2PjBHRhhnE3Cm1v4/francstireurs_entrevue_ep472_seq24.mpegts/playlist-173314a55f15b8e0a2b2fbaa0374d0d37ea16176.m3u8',
+		// 	'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=896000,RESOLUTION=640x360,CODECS="avc1.77.30,mp4a.40.2"',
+		// 	'http://s2.content.video.llnw.net/smedia/42f4e71183054396907c0dea18241568/Dy/ib8WVBi0wgh-eDYfWlGWzK2jocFCRsmAUVR3g1BVI/francstireurs_entrevue_ep472_seq24.mpegts/playlist-8681a73ddca64c4e76ac2822773b665b5f65a953.m3u8',
+		// 	'#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1296000,RESOLUTION=640x360,CODECS="avc1.77.30,mp4a.40.2"',
+		// 	'http://s2.content.video.llnw.net/smedia/42f4e71183054396907c0dea18241568/An/nInMFN6jNo7_9GzhMQQnePkdJd-KTBwssTf8tyvZA/francstireurs_entrevue_ep472_seq24.mpegts/playlist-d8429acb6736475426427288214d2290a0a859aa.m3u8'
+		// ];
+
+
+		var parser = new m3u8Parser.Parser();
+
+		parser.push(manifest);
+		parser.end();
+
+		var parsedManifest = parser.manifest;
+
+		console.log(parsedManifest);
+
+		
+	</script>
+	<script type="text/javascript">
+		var transmuxer;
+		var remuxedSegments = [],
+			remuxedBytesLength = 0,
+			createInitSegment = true,
+			remuxedInitSegment = {};
+
+		var bytes, i, j;
+
+		var mediaSource;
+		var video;
+
+		transmuxer = new muxjs.mp4.Transmuxer();
+
+		// transmuxer.on('data', function(event) {
+		// 	console.log(event);
+		// 	console.log(event.data.byteLength);
+		//   remuxedSegments.push(event);
+		//   remuxedBytesLength += event.data.byteLength;
+		// });
+
+		// transmuxer.on('done', function () {
+		//   bytes = new Uint8Array(remuxedBytesLength);
+
+		//   for (j = 0, i = 0; j < remuxedSegments.length; j++) {
+		//     bytes.set(remuxedSegments[j].data, i);
+		//     i += remuxedSegments[j].byteLength;
+		//   }
+		//   remuxedSegments = [];
+		//   remuxedBytesLength = 0;
+
+		//   window.vjsBuffer.appendBuffer(bytes);
+		//   if(video.currentTime<1) video.play();
+
+		// });
+
+		transmuxer.on('data', function(event) {
+			console.log(event);
+			console.log(event.data.byteLength);
+
+			remuxedSegments.push(event);
+			remuxedBytesLength += event.data.byteLength;
+			remuxedInitSegment = event.initSegment;
+
+		});
+
+		transmuxer.on('done', function () {
+			var offset = 0;
+			if (createInitSegment) {
+		  		bytes = new Uint8Array(remuxedInitSegment.byteLength + remuxedBytesLength);
+		  		bytes.set(remuxedInitSegment, offset);
+		  		offset += remuxedInitSegment.byteLength;
+		  		createInitSegment = false;
+			}else{
+				bytes = new Uint8Array(remuxedBytesLength);
+			}
+
+			for (j = 0, i = offset; j < remuxedSegments.length; j++) {
+				bytes.set(remuxedSegments[j].data, i);
+				i += remuxedSegments[j].byteLength;
+			}
+		  	remuxedSegments = [];
+		  	remuxedBytesLength = 0;
+
+			window.vjsBuffer.appendBuffer(bytes);
+			if(video.currentTime<1) video.play();
+
+		});
+
+		function onTS(arrayBuffer){
+			var segment = new Uint8Array(arrayBuffer);
+			createInitSegment = true;
+			
+			transmuxer.push(segment);
+			transmuxer.flush();
+		}
+
+		function getXHR(url, responseType, callback) {
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', url);
+			xhr.responseType = responseType;
+			xhr.onload = function(e){
+				if (xhr.readyState === 4) {
+					if (xhr.status === 200) {
+						callback(e.target.response);
+					} else {
+						console.error(xhr.statusText);
+						if(intervalID){
+							clearInterval(intervalID);
+						}
+					}
+				};
+			}
+			xhr.send(null);
+		}
+
+		function prepareSourceBuffer() {
+
+
+			mediaSource = new MediaSource();
+			video = document.createElement('video');
+			video.controls = true;
+			video.src = URL.createObjectURL(mediaSource);
+			video.addEventListener('error', logevent);
+			window.vjsVideo = video;
+			window.vjsMediaSource = mediaSource;
+			document.querySelector('#video-place').appendChild(video);
+
+			mediaSource.addEventListener('error', logevent);
+			mediaSource.addEventListener('opened', logevent);
+			mediaSource.addEventListener('closed', logevent);
+			mediaSource.addEventListener('sourceended', logevent);
+
+			mediaSource.addEventListener('sourceopen', function () {
+				var buffer, codecs;
+				codecs = "mp4a.40.2, avc1.4d401f";
+				mediaSource.duration = 0;
+				buffer = mediaSource.addSourceBuffer('video/mp4;codecs="' + codecs + '"');
+				buffer.addEventListener('updateend', logevent);
+				buffer.addEventListener('error', logevent);
+				window.vjsBuffer = buffer;
+
+				getXHR('mockData/fileSequence0.ts', 'arraybuffer', onTS);
+			});
+		};
+
+		function logevent() {
+
+		}
+
+		prepareSourceBuffer();
+
+		// getXHR('mockData/fileSequence0.ts', 'arraybuffer', onTS);
+
+
+	</script>
+
+</body>
+</html>
